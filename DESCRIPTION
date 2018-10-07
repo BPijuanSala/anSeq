@@ -1,0 +1,12 @@
+Package: anSeq
+Title: Tools to analyse RNA-seq data
+Version: 1.1
+Date: 2016-12-20
+Author: Blanca Pijuan-Sala
+Maintainer: Blanca Pijuan-Sala <bp382@cam.ac.uk>
+Description: Package that provides a set of tools to analyse transcriptomic data.
+License: GPL-3
+Imports: edgeR, ggplot2, grDevices, randomForest, cba, gatepoints, stats, utils, graphics, princurve
+Depends: R(>= 3.4.0)
+RoxygenNote: 6.0.1
+LazyData: true
