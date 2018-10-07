@@ -5,7 +5,8 @@
 \title{Find markers within groups}
 \usage{
 findMarkers(counts, genes = NULL, groups, topGeneThres = 1000,
-  logFCThres = 0, qvalue = 0.05, mode = "general", groupTarget = NULL)
+  logFCThres = 0, qvalue = 0.05, mode = "general",
+  groupTarget = NULL)
 }
 \arguments{
 \item{counts}{Dataframe or matrix containing the counts (genes x cells).}

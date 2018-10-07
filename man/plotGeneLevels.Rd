@@ -4,9 +4,9 @@
 \alias{plotGeneLevels}
 \title{Plot gene expression}
 \usage{
-plotGeneLevels(data, x, y, gene, cols = c("blue", "gold"), pointSize = 1,
-  xlab = "x", ylab = "y", titlePlot = gene, clusters = NULL,
-  boxplot = FALSE)
+plotGeneLevels(data, x, y, gene, cols = c("blue", "gold"),
+  pointSize = 1, xlab = "x", ylab = "y", titlePlot = gene,
+  clusters = NULL, boxplot = FALSE)
 }
 \arguments{
 \item{data}{Dataframe or matrix containing the counts (genes x cells). The cells

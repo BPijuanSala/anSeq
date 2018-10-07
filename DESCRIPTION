@@ -8,5 +8,6 @@ Description: Package that provides a set of tools to analyse transcriptomic data
 License: GPL-3
 Imports: edgeR, ggplot2, grDevices, randomForest, cba, gatepoints, stats, utils, graphics, princurve
 Depends: R(>= 3.4.0)
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 LazyData: true
+Encoding: UTF-8

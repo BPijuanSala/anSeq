@@ -7,7 +7,8 @@
 orderCellsDif(fb, tEnd, coorPlot, clustCells, OriginClusts, DifClusts,
   windowSize = 50, stepSize = 20, cutEndMode = "fit", manifold,
   strengthen = TRUE, strenCells = 50, strenPower = 10,
-  colIntensity = c("grey", "gold", "orange", "red", "blue"), endIdx = NULL)
+  colIntensity = c("grey", "gold", "orange", "red", "blue"),
+  endIdx = NULL)
 }
 \arguments{
 \item{fb}{Output object resulting from the fateBias function from FateID. 
