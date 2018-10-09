@@ -6,7 +6,7 @@ Author: Blanca Pijuan-Sala
 Maintainer: Blanca Pijuan-Sala <bp382@cam.ac.uk>
 Description: Package that provides a set of tools to analyse transcriptomic data.
 License: GPL-3
-Imports: edgeR, ggplot2, grDevices, randomForest, cba, gatepoints, stats, utils, graphics, princurve
+Imports: edgeR, ggplot2, grDevices, randomForest, cba, gatepoints, stats, utils, graphics
 Depends: R(>= 3.4.0)
 Suggests: knitr, Rtsne, destiny, proSeq, moduleColor
 VignetteBuilder: knitr

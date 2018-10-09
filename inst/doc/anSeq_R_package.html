@@ -246,8 +246,8 @@ markers &lt;-<span class="st"> </span><span class="kw">findMarkers</span>(counts
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">surface &lt;-<span class="st"> </span><span class="kw">findSurfaceMarkers</span>(markers<span class="op">$</span>YS)</code></pre></div>
 <p>This function returns a vector with cell surface genes as names and the confidence category of them being a surface protein as element.</p>
 </div>
-<div id="check-for-surface-markers-1" class="section level3">
-<h3>Check for surface markers</h3>
+<div id="check-gene-expression-levels" class="section level3">
+<h3>Check gene expression levels</h3>
 <p>To assess gene levels in a landscape, you can use ‘plotGeneLevels’</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plotGeneLevels</span>(counts,<span class="dt">x=</span>pca<span class="op">$</span>x[,<span class="dv">1</span>],<span class="dt">y=</span>pca<span class="op">$</span>x[,<span class="dv">2</span>],<span class="dt">gene=</span><span class="kw">getGeneID</span>(<span class="st">&quot;Tal1&quot;</span>)[[<span class="dv">2</span>]],
                <span class="dt">titlePlot =</span> <span class="st">&quot;Tal1&quot;</span>)</code></pre></div>

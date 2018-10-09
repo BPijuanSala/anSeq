@@ -164,7 +164,7 @@ surface <- findSurfaceMarkers(markers$YS)
 
 This function returns a vector with cell surface genes as names and the confidence category of them being a surface protein as element.
 
-### Check for surface markers
+### Check gene expression levels
 To assess gene levels in a landscape, you can use 'plotGeneLevels'
 
 ```{r eval=FALSE}
