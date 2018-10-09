@@ -60,7 +60,7 @@ plotGeneLevels <- function(data, x, y, gene, cols=c("blue","gold"),
     colorsPlot <- redRamp(11)[interval]
     
     par(mar=c(8,4,8,4),xpd=NA)
-    plot(df$x, df$y, col=cols[1], pch=16, cex=pointSize,
+    plot(df$x, df$y, col=cols[1], pch=20, cex=pointSize,
          xlab="", ylab="", main=titlePlot, axes=F, cex.main=1.5)
     box(bty="l")
     points(dfsub$x, dfsub$y, pch=20, cex=pointSize, 
@@ -108,7 +108,7 @@ plotGeneLevels <- function(data, x, y, gene, cols=c("blue","gold"),
     par(mar=c(4,2,4,2),xpd=NA)
     #bottom, left, top and right
     
-    plot(df$x, df$y, col=cols[1], pch=16, cex=pointSize,
+    plot(df$x, df$y, col=cols[1], pch=20, cex=pointSize,
          xlab="", ylab="", main=titlePlot, axes=F, cex.main=1.5)
     box(bty="l")
     points(dfsub$x, dfsub$y, pch=20, cex=pointSize, 

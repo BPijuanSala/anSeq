@@ -4,7 +4,8 @@
 \alias{hclustCells}
 \title{Cluster cells}
 \usage{
-hclustCells(data, clust.method = "ward.D2", leafreorder = "column")
+hclustCells(data, clust.method = "ward.D2", leafreorder = "column",
+  cor.method = "spearman")
 }
 \arguments{
 \item{data}{Dataframe or matrix containing the counts (genes x cells). The 
@@ -17,6 +18,8 @@ For more options, see \code{\link[stats]{hclust}}.}
 with reordered gene ("row") or cell leaves ("column"). If you want
 to obtain both as a list, specify "both". Default: column (it will 
 reorder the cells).}
+
+\item{cor.method}{correlation method to calculate the distance matrix.}
 }
 \value{
 hclust object

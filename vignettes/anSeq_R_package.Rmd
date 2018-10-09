@@ -1,0 +1,230 @@
+---
+title: "anSeq R package"
+author: "Blanca Pijuan-Sala"
+date: "09 October 2018"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{anSeq R package}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+  
+## Introduction
+  
+This package provides a toolkit for analysing single-cell RNA-seq data. 
+
+First, let's load the library.
+
+```{r}
+library(anSeq)
+```
+
+Next, we will also process a specific dataset provided in the package with the proSeq package so that we get our normalised log2 transformed counts. If you would like further information on the proSeq package, please refer to it at https://github.com/BPijuanSala/proSeq
+
+```{r}
+library(proSeq)
+
+
+##Split counts into gene counts and feature counts
+countsfeat = countsMatrix[grep("^__",rownames(countsMatrix)),]
+rownames(countsfeat) = c("no.feature","ambiguous","lowQuality","unaligned","align.not.unique")
+countsRaw = countsMatrix[grep("^__",rownames(countsMatrix),invert = TRUE),]
+
+
+##Find ERCC spike-ins
+
+spikes = substr(rownames(countsRaw),1,4)=="ERCC"
+names(spikes)=rownames(countsRaw)
+
+##Create RNAseq object
+
+meta = meta[rownames(meta)%in%colnames(countsRaw),]
+countsRaw <- countsRaw[,colnames(countsRaw)%in%rownames(meta)]
+meta <- meta[colnames(countsRaw),]
+countsfeat1 <- countsfeat[,colnames(countsRaw)]
+
+data <- new("RNAseq", countsRaw=as.matrix(countsRaw), metadata=as.matrix(meta),SpikeIn=spikes,CountsFeat=as.matrix(countsfeat1))
+
+#Perform cell QC
+cellQC_data <- runCellQC(data,checkCountsFeat = TRUE,plotting="no",maxMapmit=0.12,minGenesExpr = 4000,minMapreads = 100000)
+
+cellsFailQC(data)<-c(cellQC_data)
+
+# Normalise counts
+NormOutput1 <- normalise(data)
+
+countsNorm(data) <- NormOutput1$countsNorm
+
+CellsSizeFac(data) <- list(sizeFactorsGenes = NormOutput1$sizeFactorsGenes, 
+                             sizeFactorsSpikeIn = NormOutput1$sizeFactorsSpikeIn)
+
+# Find highly variable genes
+hvg <- findHVG(object=data,plotting="no",UseSpike = TRUE, minQuantMeans = 0.1,maxQuantMeans = 0.9,maxQuantCv2 = 0.9,minQuantCv2 = 0.1)
+
+genesHVG(data) = hvg
+```
+
+## Functions
+
+### Find the gene name of a geneID or viceversa
+
+You can find the Ensembl Gene ID of a particular gene with the "getGeneID" function. This function returns a list with two elements. The first one is a table where you can find the gene ID and the associated gene name. The second is a vector with the geneID directly.
+
+```{r}
+geneName <- getGeneID(c("Tal1","Spi1"))
+
+geneName[[1]] #table
+geneName[[2]]#geneID vector
+```
+
+The default table used to find the corresponding geneID is the object geneTable, which you can access just by doing:
+
+```{r}
+head(geneTable)
+```
+
+This dataframe is based on GRCm38.81 annotation (mouse mm10). You can change the table by specifying the argument "Table". In this argument, you have to provide a table like geneTable (i.e. with first column of geneID and second of geneName).
+
+```{r}
+
+geneName <- getGeneID(c("Tal1","Spi1"),Table=geneTable)
+
+```
+You can find tables in bioMart https://www.ensembl.org/biomart/martview/95b29a51b58327ef22ed69b6c23d28b9
+
+You can also find the geneID with the getGeneName function, which works in a similar manner.
+```{r}
+
+geneID <- getGeneName(c("ENSMUSG00000028717", "ENSMUSG00000002111"),Table=geneTable)
+
+geneID[[1]]
+
+geneID[[2]]
+```
+
+
+### Select cells in a plot
+
+Let's imagine we have calculated dimensionality reduction on our dataset and now we want to investigate specific cells that appear in a specific area in the plot.
+For this case, we will use the metadata and the countsMatrix provided in the package. Note that we would first need to normalise as in 
+
+First, we compute PCA on log2 transformed normalised counts
+```{r}
+#Take normalised counts
+normCounts <- countsNorm(data)
+counts <- log2(normCounts+1)
+
+
+
+pca <- prcomp(t(counts[hvg,]))
+
+```
+ 
+Next, we feed the PCA into the function "selectCellsinPlot". This will make a window pop up. With the mouse, gate the cells you are interested in by left clicking and finally right-click to finish.
+```{r eval=FALSE}
+
+cells <- selectCellsinPlot(pca$x[,c(1:2)],pch=20)
+
+as.vector(cells)
+```
+This will return a vector of cell names and also the x and y coordinates of the points of interest. You can then use the cell names for further explorations.
+
+
+### Find markers
+
+Sometimes, we want to find markers of specific populations. For this, we can use the function "findMarkers", which makes use of edgeR for differential expression analyses.
+
+First, we need to create a vector as long as the number of cells to analyse, with the groups we are interested and named them by the cell. Next, we run the function. 
+If the dataset is very big, I would recommend making a selection of highly variable genes in the dataset first and then run the function.
+
+```{r}
+metaPassQC <- meta[colnames(counts),]
+groups <- metaPassQC$celltype
+names(groups)<- rownames(metaPassQC)
+
+markers <- findMarkers(counts,groups=groups)
+```
+
+The output of this function is a list with the different groups that you have compared. Each element will have a dataframe with the results for the comparison between that group against the rest. Those genes with positive logFC will be those upregulated in that group.
+
+You can also use findMarkers in a more targeted manner. If you are interested in a specific population only, for example, YS, you can run the following.
+```{r}
+markers <- findMarkers(counts,groups=groups,groupTarget = "YS")
+
+```
+
+### Check for surface markers
+
+A popular question in science is whether a particular cell population has cell surface markers that are unique for them so that we can purify it.
+Here, I have taken a list of surface markers from http://wlab.ethz.ch/cspa/ so that you can check whether you gene list contains any surface markers.
+
+```{r}
+surface <- findSurfaceMarkers(markers$YS)
+```
+
+This function returns a vector with cell surface genes as names and the confidence category of them being a surface protein as element.
+
+### Check for surface markers
+To assess gene levels in a landscape, you can use 'plotGeneLevels'
+
+```{r eval=FALSE}
+plotGeneLevels(counts,x=pca$x[,1],y=pca$x[,2],gene=getGeneID("Tal1")[[2]],
+               titlePlot = "Tal1")
+
+```
+We can also check the expression levels by group with boxplots doing the following. This will output both the PCA coloured by gene expression and the boxplots of gene expression divided by groups.
+```{r eval=FALSE}
+
+colorsGroups <- moduleColor::labels2colors(as.numeric(as.factor(groups)))
+plotGeneLevels(counts,x=pca$x[,1],y=pca$x[,2],gene=getGeneID("Tal1")[[2]],
+               titlePlot = "Tal1",boxplot = T,clusters=colorsGroups)
+```
+
+### Hierarchical clustering with optimal leaf reordering
+We can use hclustCells to cluster cells based on hierarchical clustering and leaf reordering.
+
+```{r eval=FALSE}
+
+countsForClust <- counts[hvg,]
+clust <- anSeq::hclustCells(countsForClust,leafreorder="column")
+
+```
+
+### Random forest classifier
+
+If we want to classify a set of cells using random forests, we can train the forest using "trainForest" and allocate the cells with "allocateCellsForest".
+*Note that the cell numbers here are very low; this should only serve as example.
+
+We first define cells for training. You should have similar numbers of groups. In this case, we have 10 cells for YS and 10 cells for AL.
+
+```{r}
+
+trainCellsYS <- sample(rownames(metaPassQC)[metaPassQC$celltype=="YS"],10)
+trainCellsAL <- sample(rownames(metaPassQC)[metaPassQC$celltype=="AL"],10)
+```
+
+Next, we define cells to classify (we should imagine we don't know which celltypes these cells are)
+```{r}
+mysterious <- rownames(metaPassQC)[rownames(metaPassQC)%in%c(trainCellsAL,trainCellsYS)==F]
+
+```
+
+Set up data to train random forest on
+```{r}
+dataTrain <- counts[,c(trainCellsYS,trainCellsAL)]
+groupsTrain <- c(rep("YS",length(trainCellsYS)),rep("AL",length(trainCellsAL)))
+names(groupsTrain)<-colnames(dataTrain)
+```
+
+Train random forest
+```{r}
+training <- trainForest(dataTrain,groups=groupsTrain)
+```
+
+Once the random forest is trained, we classify our mysterious cells
+```{r}
+dataToClass <- counts[,mysterious]
+Classification <- allocateCellsForest(dataToClass,RForestObj = training$RForest,genesTrained = training$genesTrained)
+```
+
+I hope this was useful. If you have any issues, please report them to bps.queries@gmail.com

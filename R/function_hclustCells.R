@@ -17,6 +17,7 @@
 #' with reordered gene ("row") or cell leaves ("column"). If you want
 #' to obtain both as a list, specify "both". Default: column (it will 
 #' reorder the cells). 
+#' @param cor.method correlation method to calculate the distance matrix.
 #' @return hclust object
 #' @seealso \code{\link[stats]{hclust}}.
 #' @references \code{\link[stats]{hclust}}, \code{\link[cba]{order.optimal}}
@@ -26,14 +27,14 @@
 #' @importFrom cba order.optimal 
 #' @importFrom stats hclust reorder cor as.dist
 
-hclustCells <- function(data, clust.method = "ward.D2",leafreorder="column"){
+hclustCells <- function(data, clust.method = "ward.D2",leafreorder="column",cor.method="spearman"){
   #reorder can be column or row.
   
-  if (reorder == "column"){
+  if (leafreorder == "column"){
     
     mat1 <- as.matrix(data)
     
-    cor.mat1<-cor(mat1,method="spearman")
+    cor.mat1<-cor(mat1,method=cor.method)
     dissim1<-(1-cor.mat1)/2
     d1<-as.dist(dissim1)
     
@@ -53,12 +54,12 @@ hclustCells <- function(data, clust.method = "ward.D2",leafreorder="column"){
     return(ho)
     
   }
-  if (reorder=="row"){
+  if (leafreorder=="row"){
     
     mat2 <- t(mat1)
     
     
-    cor.mat2<-cor(mat2,method="spearman")
+    cor.mat2<-cor(mat2,method=cor.method)
     dissim2<-(1-cor.mat2)/2
     d2<-as.dist(dissim2)
     
@@ -75,11 +76,11 @@ hclustCells <- function(data, clust.method = "ward.D2",leafreorder="column"){
     ho2$order <- co2$order
     return(ho2)
   }
-  if (reorder == "both"){
+  if (leafreorder == "both"){
     
     mat1 <- as.matrix(data)
     
-    cor.mat1<-cor(mat1,method="spearman")
+    cor.mat1<-cor(mat1,method=cor.method)
     dissim1<-(1-cor.mat1)/2
     d1<-as.dist(dissim1)
     
@@ -101,7 +102,7 @@ hclustCells <- function(data, clust.method = "ward.D2",leafreorder="column"){
     mat2 <- t(mat1)
     
     
-    cor.mat2<-cor(mat2,method="spearman")
+    cor.mat2<-cor(mat2,method=cor.method)
     dissim2<-(1-cor.mat2)/2
     d2<-as.dist(dissim2)
     
